@@ -1,0 +1,99 @@
+version: '3'
+# todo: сделать volumes-from (чтобы не копипастить куски кода в volumes)
+# todo: запуск не рутом?
+# docker exec -it webui 'useradd -u alberta -U -ms /bin/bash alberta'
+# docker exec -u alberta -it webui  bash
+
+services:
+
+    web:
+# (run build.sh)
+      image: csb_web:latest
+      container_name: csb_web
+#      user: ${CURRENT_UID}
+#      environment:
+
+      #volumes:
+        #- ./home:/root
+        #- /tmp/:/run/php/
+        #- ./csb-docker/nginx/:/etc/nginx
+        #- ./csb-docker/var/log/nginx:/var/log/nginx
+        #- ./csb-docker/nginx/php-fpm/etc-7.1-ubuntu:/etc/php/7.1/fpm
+        #- ./docker/php-fpm/:/usr/local/etc/php/
+
+      # можно через тоннель достучаться до порта! (80:1080), например
+      ports:
+        - 80:80
+
+      links:
+          - php
+      command: nginx -g "daemon off;"
+      depends_on:
+          - php
+
+
+    php:
+      image: csb_php
+      container_name: csb_php
+#        user: ${CURRENT_UID}
+#      environment:
+
+      working_dir: /var/www/cp.betweendigital.com
+      command: /usr/sbin/php-fpm7.2 -F
+#      volumes:
+#        - $SSH_AUTH_SOCK:/ssh-agent
+#        - ${CP_SRC_DIR}:/var/www/cp.betweendigital.com
+#        - ${SLICER_SRC_DIR}:/var/www/slicer.betweendigital.com
+#        #- ${SLICER_FRONTEND_DIR}:/var/www/slicer-front
+#        - ./home:/root
+#        - /tmp/:/run/php/
+#        - ./nginx/:/etc/nginx
+#        - ./var/log/nginx:/var/log/nginx
+#        - ./nginx/php-fpm/etc-7.1-ubuntu:/etc/php/7.1/fpm
+#        - ./docker/php-fpm/:/usr/local/etc/php/
+#      links:
+
+#      networks:
+#        reverse-proxy:
+#            aliases:
+#              - userweb
+#        back:
+#            aliases:
+#              - webfpm
+#      depends_on:
+#          - mail
+
+    mysql:
+      #image: percona/percona-server
+      # host connect: mysql -uroot -proot -P3308  -h127.0.0.1
+      image: mysql/mysql-server:5.7
+      container_name: csb_mysql
+      environment:
+        - MYSQL_ROOT_HOST=%
+        - MYSQL_ROOT_USER=root
+        - MYSQL_ROOT_PASSWORD=root
+        - MYSQL_USER=csb
+        - MYSQL_PASSWORD=csb_demo
+        - MYSQL_DATABASE=csb
+      command: --general_log_file=/logs/mysql.log --log-output=FILE
+      #expose: ["3306"]
+      ports:
+        - "3308:3306"
+#      volumes:
+#        # замапим каталог для данных мускуля
+#        - "./home/data/mysql/:/var/lib/mysql"
+#        - "./logs/:/logs"
+#        - "./docker/mysql_conf:/etc/mysql"
+#        #- "./doc:/doc"
+#      networks:
+#        reverse-proxy:
+#          aliases:
+#            - mysql
+
+#
+#networks:
+#  reverse-proxy:
+#    external:
+#       name: reverse-proxy
+#  back:
+#      driver: bridge

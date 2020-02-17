@@ -205,7 +205,7 @@ function loadLoginBox()
                                value="<?php echo "http" . (($_SERVER['SERVER_PORT'] == 443) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ?>">
                         <input type="hidden" name="go" value="login">
 
-                        <div class="error-msg"><?php if (isset($_SESSION['errmsg'])) {
+                        <div class="error-msg"><?php if (array_key_exists('errmsg', $_SESSION)) {
                                 $_SESSION['showmodal'] = TRUE;
                                 echo "<span style=\"color: red;\">" . $_SESSION['errmsg'] . "</span>";
                             } ?></div>
@@ -247,7 +247,7 @@ function loadLoginBox()
         })
 
         // Re-open login modal if login fails
-        if ('<?php echo $_SESSION['errmsg']; ?>' !== '') {
+        if ('<?php (array_key_exists('errmsg', $_SESSION)) ?>' !== '') {
             $('#loginModal').removeClass('fade');
             $('#loginModal').modal('show');
         }
